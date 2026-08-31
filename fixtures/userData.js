@@ -1,5 +1,5 @@
 function buildValidUser() {
-  const unique = Date.now(); // garante e-mail único a cada execução
+  const unique = Date.now(); // Isso garante e-mail único a cada execução
 
   return {
     name: 'Teste Usuário',
