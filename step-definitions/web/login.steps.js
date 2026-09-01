@@ -1,13 +1,14 @@
 const { Given, When, Then } = require('@cucumber/cucumber');
 const { expect } = require('@playwright/test');
-const { LoginPage } = require('../../page-objects/LoginPage');
-const { HeaderComponent } = require('../../page-objects/HeaderComponent');
+const { LoginPage } = require('../../page-objects/PaginaDeLogin');
+const { HeaderComponent } = require('../../page-objects/Cabecalho');
 const { buildValidUser } = require('../../fixtures/userData');
-const { registerNewUser } = require('../../support/userRegistration');
+const { registerNewUser } = require('../../utils/userRegistration');
 
 Given('que existe um usuário cadastrado no site', async function () {
   this.testUser = buildValidUser();
-  await registerNewUser(this.page, this.testUser);
+  const signupPage = await registerNewUser(this.page, this.testUser);
+  await signupPage.continueToHome();
 
   const header = new HeaderComponent(this.page);
   await header.logout();
@@ -27,10 +28,10 @@ Then('ele deve estar autenticado no site', async function () {
   await expect(header.loggedInAs(this.testUser.name)).toBeVisible();
 });
 
-When('ele faz login com uma senha incorreta', function () {
-  return 'pending';
+When('ele faz login com uma senha incorreta', async function () {
+  await this.loginPage.login('usuario.que.nao.existe@example.com', 'SenhaErrada123!');
 });
 
-Then('uma mensagem de erro deve ser exibida', function () {
-  return 'pending';
+Then('uma mensagem de erro deve ser exibida', async function () {
+  await expect(this.loginPage.loginErrorMessage).toBeVisible();
 });

@@ -7,7 +7,7 @@ class LoginPage {
     this.emailInput = page.locator('input[data-qa="login-email"]');
     this.passwordInput = page.locator('input[data-qa="login-password"]');
     this.loginButton = page.locator('button[data-qa="login-button"]');
-    
+    this.loginErrorMessage = page.getByText('Your email or password is incorrect!');    
   }
 
   async goto() {

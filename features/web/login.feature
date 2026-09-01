@@ -3,14 +3,14 @@ Feature: Login de usuário
   Eu quero fazer login com minhas credenciais
   Para acessar minha conta
 
-  @W02-login
+  @W02-login @regression
   Scenario: Login com credenciais válidas
     Given que existe um usuário cadastrado no site
     And o usuário está na página de login
     When ele faz login com e-mail e senha corretos
     Then ele deve estar autenticado no site
 
-  @W03-login
+  @W03-login-invalido @regression
   Scenario: Login com credenciais inválidas
     Given que o usuário está na página de login
     When ele faz login com uma senha incorreta

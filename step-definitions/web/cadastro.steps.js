@@ -1,9 +1,10 @@
 const { Given, When, Then } = require('@cucumber/cucumber');
 const { expect } = require('@playwright/test');
-const { LoginPage } = require('../../page-objects/LoginPage');
-const { SignupPage } = require('../../page-objects/SignupPage');
-const { HeaderComponent } = require('../../page-objects/HeaderComponent');
+const { LoginPage } = require('../../page-objects/PaginaDeLogin');
+const { SignupPage } = require('../../page-objects/PáginadeCadastro');
+const { HeaderComponent } = require('../../page-objects/Cabecalho');
 const { buildValidUser } = require('../../fixtures/userData');
+const { completeSignup } = require('../../utils/userRegistration');
 
 Given('que o usuário está na página de login', async function () {
   this.loginPage = new LoginPage(this.page);
@@ -23,8 +24,7 @@ When('clica em {string}', async function (buttonLabel) {
 });
 
 When('preenche todas as informações com dados válidos', async function () {
-  await this.signupPage.fillAccountInformation(this.testUser);
-  await this.signupPage.submit();
+  await completeSignup(this.signupPage, this.testUser);
 });
 
 Then('o cadastro deve ser confirmado com sucesso', async function () {
@@ -33,6 +33,6 @@ Then('o cadastro deve ser confirmado com sucesso', async function () {
 });
 
 Then('o usuário deve conseguir logar no site', async function () {
-  this.header = new HeaderComponent(this.page);
-  await expect(this.header.loggedInAs(this.testUser.name)).toBeVisible();
+  const header = new HeaderComponent(this.page);
+  await expect(header.loggedInAs(this.testUser.name)).toBeVisible();
 });
