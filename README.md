@@ -1,21 +1,72 @@
 # Desafio Técnico — Automação de Testes | automationexercise.com
 
+Projeto de automação de testes cobrindo as camadas **Web** e **API** do site
+[automationexercise.com](https://automationexercise.com), desenvolvido como
+desafio técnico para a vaga de Analista de Qualidade.
+
+## Objetivo
+
+Validar, de forma automatizada, os principais fluxos de cadastro, login,
+busca e compra do site, utilizando BDD (Gherkin) e Page Objects, conforme
+especificado no desafio técnico.
+
 ## Stack
 
-- **Playwright** para controle de browser
-- **@cucumber/cucumber** para BDD (Gherkin) na camada Web
-- **JavaScript**
+- **Playwright** — controle de navegador e automação de ações na UI
+- **@cucumber/cucumber** — BDD (Gherkin) para a camada Web
+- **JavaScript** (não TypeScript — ver justificativa abaixo)
+
+### Por que Playwright + Cucumber?
+
+O desafio permitia escolher entre Cypress e Playwright. Optei por Playwright
+por já estar em processo de aprendizado da ferramenta, e por sua API nativa
+de `APIRequestContext`, que permite testar a camada de API reaproveitando a
+mesma stack usada na camada Web, sem depender de bibliotecas externas.
+
+### Por que JavaScript, e não TypeScript?
+
+O projeto foi iniciado a partir do template padrão do
+`npm init playwright@latest`, em JavaScript. Como o foco deste desafio,
+para mim, também é aprendizado da ferramenta, optei por manter em JavaScript
+para reduzir a complexidade adicional de tipagem enquanto ainda me familiarizo
+com os conceitos centrais do Playwright e do BDD.
+
+### Sobre o idioma dos nomes de arquivo e classes
+
+Os cenários em Gherkin (`.feature`) e os **nomes dos Page Objects** estão
+em português, por escolha pessoal ligada ao processo de aprendizado — fico
+mais confortável lendo o código de ponta a ponta no mesmo idioma do domínio
+de negócio. Já os arquivos utilitários (`utils/`, `fixtures/`) e a
+convenção geral de código seguem nomenclatura mais próxima do padrão da
+indústria (inglês), refletindo uma mistura consciente, não uma
+inconsistência acidental.
 
 ## Estrutura de pastas
 
-features/web/ -> cenários Gherkin (.feature) da camada Web
-step-definitions/web/ -> implementação dos steps (Given/When/Then)
-page-objects/ -> Page Objects (locators + ações de cada página)
-support/ -> hooks do Cucumber (ciclo de vida do browser)
-utils/ -> funções utilitárias reutilizáveis (ex: registro de usuário)
-fixtures/ -> massa de dados de teste
-tests/ -> testes de API (reservado)
 
+features/web/ → cenários Gherkin (.feature) da camada Web
+step-definitions/web/ → implementação dos steps (Given/When/Then)
+page-objects/ → Page Objects (locators + ações de cada página)
+support/ → hooks do Cucumber (ciclo de vida do browser)
+utils/ → funções utilitárias reutilizáveis (ex: registro de usuário)
+fixtures/ → massa de dados de teste
+tests/ → testes de API (reservado — camada ainda não implementada)
+playwright.config.js → configuração do Playwright Test runner (uso futuro: API)
+cucumber.js → configuração do cucumber-js (camada Web)
+
+
+
+### Arquivos principais
+
+| Arquivo | Responsabilidade |
+|---|---|
+| `page-objects/PaginaDeLogin.js` | Ações da tela de login e início de cadastro |
+| `page-objects/PáginadeCadastro.js` | Preenchimento do formulário completo de cadastro |
+| `page-objects/Cabecalho.js` | Componente de cabeçalho (login/logout, usuário autenticado) |
+| `page-objects/PaginaDeBusca.js` | Busca de produtos e leitura dos resultados |
+| `utils/userRegistration.js` | Orquestra o fluxo completo de cadastro (reutilizado por W01 e W02) |
+| `fixtures/userData.js` | Geração de dados de usuário de teste (e-mail único por execução) |
+| `support/hooks.js` | Ciclo de vida do browser (`Before`/`After`), timeout global, captura de screenshot em falha |
 
 ## Instalação
 
@@ -27,22 +78,73 @@ npx playwright install
 ## Execução
 
 ```bash
-# Testes Web (BDD)
+# Todos os testes Web (BDD)
 npx cucumber-js
 
-# Ou, se configurado no package.json:
-npm run test:web
+# Por tag
+npx cucumber-js --tags @smoke
+npx cucumber-js --tags @regression
+
+# Um arquivo de feature específico
+npx cucumber-js features/web/cadastro.feature
+
+# Um cenário específico, por linha
+npx cucumber-js features/web/login.feature:7
 ```
 
-## Status
+Por padrão, os testes rodam em modo headless. Para acompanhar visualmente,
+altere `headless: true` para `headless: false` em `support/hooks.js`.
 
-- [x] W01 — Cadastro de usuário
-- [x] W02 — Login com credenciais válidas
-- [x] W03 — Login com credenciais inválidas
-- [x] W04 — Busca de produto
-- [ ] W05 em diante...
+## Arquitetura e decisões de design
 
-## Observações – W04 (Busca de produto)
+### Page Object Model
+
+Toda interação com elementos de UI está encapsulada em Page Objects — os
+locators ficam centralizados no `constructor` de cada classe, nunca
+espalhados nos steps. Os métodos representam ações do usuário (ex:
+`login()`, `searchForProduct()`), não passos técnicos soltos.
+
+Page Objects **não guardam estado de teste** (ex: qual foi o último termo
+buscado) — essa responsabilidade fica com o step (via `this`, no World do
+Cucumber). Um Page Object só sabe fazer ações na tela e devolver o que está
+visível — quem decide o que fazer com essa informação é o step.
+
+### Ciclo de vida do navegador (`support/hooks.js`)
+
+Cada cenário roda em um `browser context` e uma `page` novos (`Before`),
+garantindo isolamento total entre testes — nenhum cenário depende de estado
+deixado por outro. Em caso de falha, um screenshot é automaticamente
+anexado ao relatório (`After`), sem necessidade de configuração manual por
+cenário.
+
+### Reaproveitamento de fluxos (`utils/userRegistration.js`)
+
+O fluxo de cadastro de usuário é usado tanto no teste de cadastro em si
+(W01) quanto como pré-condição do teste de login (W02, que precisa de um
+usuário existente). Para evitar duplicar essa lógica, ela foi extraída em
+funções reutilizáveis (`startSignup`, `completeSignup`, `registerNewUser`),
+usadas por ambos os cenários.
+
+### Dados de teste únicos (`fixtures/userData.js`)
+
+Como o site não permite resetar o estado entre execuções, o e-mail do
+usuário de teste é gerado com timestamp (`Date.now()`), garantindo que cada
+execução crie um usuário novo, sem colisão com execuções anteriores.
+
+## Cobertura de testes
+
+| ID | Cenário | Arquivo | Status |
+|---|---|---|---|
+| W01 | Cadastro de usuário | `features/web/cadastro.feature` | ✅ |
+| W02 | Login — credenciais válidas | `features/web/login.feature` | ✅ |
+| W03 | Login — credenciais inválidas | `features/web/login.feature` | ✅ |
+| W04 | Busca de produto | `features/web/buscaDeProduto.feature` | ✅ |
+| W05–W12 | Demais cenários Web | — | ⏳ Pendente |
+| A01–A10 | Camada de API | — | ⏳ Pendente |
+
+## Observações e decisões técnicas
+
+### W04 — Busca de produto
 
 A busca de produtos do site (`/products?search=`) filtra por **categoria**
 do produto, não pelo texto literal do nome. Isso foi confirmado
@@ -53,32 +155,52 @@ Gown") também aparecem nos resultados, pois estão categorizados como
 
 Um dos resultados retornados ("Sleeves Top and Short - Blue & Pink") está
 categorizado como `Kids > Dress`, mas não é um vestido — aparenta ser um
-erro de classificação no cadastro do produto, não uma falha da busca em si.
+erro de classificação no cadastro do produto, não uma falha da busca em
+si.
 
-Por esse motivo, o teste automatizado (W04) valida que a busca retorna
-resultados não-vazios, em vez de validar correspondência textual exata
-entre o termo buscado e o nome de cada produto — essa segunda validação
-geraria falsos negativos por causa do comportamento de busca por
-categoria.
+Por esse motivo, uma comparação textual exata entre o termo buscado e o
+nome de cada produto geraria falsos negativos.
 
-### Por que a validação de categoria não está no teste Web (W04)
+**Sobre o custo de validar categoria:** confirmar a categoria de um produto
+exige abrir sua página de detalhes — uma navegação extra por produto
+verificado. Validar **todos** os resultados retornados por uma busca teria
+esse custo multiplicado por N produtos, tornando o teste mais lento e mais
+suscetível a falhas de instabilidade de rede. 
+validar categoria em **todos** os resultados retornados teria o custo de
+performance já descrito (uma navegação extra por produto). Mas validar
+**apenas o primeiro produto** da lista tem um custo bem menor (1 navegação
+extra, não N) e ainda funciona como um sinal rápido de que a busca está
+minimamente correta. Por isso, a validação foi dividida entre as camadas Web e API:
 
-Uma abordagem mais rigorosa para o W04 seria abrir a página de detalhes de
-cada produto retornado na busca e comparar sua categoria com o termo
-buscado. Optei por não fazer isso na camada Web, por dois motivos:
+- **Web (W04)**: valida que a busca retorna resultados não-vazios, e faz
+  uma checagem leve — abre apenas o **primeiro** produto retornado e
+  confirma que sua categoria contém o termo buscado, como um sinal rápido
+  de que a busca está minimamente correta, mantendo o custo de navegação
+  baixo (1 acesso extra, não N).
+- **API (A03)**: fará a validação completa e rigorosa — todos os produtos
+  retornados, comparando categoria real via dados estruturados (JSON),
+  sem custo de navegação (a API devolve tudo pronto, sem precisar abrir
+  página por página).
 
-1. **Custo/performance**: validar categoria exigiria uma navegação extra
-   por produto retornado (abrir "View Product", ler a categoria, voltar),
-   tornando o teste significativamente mais lento e com mais pontos de
-   falha por instabilidade de rede — sem ganho proporcional de confiança.
+Essa divisão segue o princípio da pirâmide de testes: verificação leve de
+fluxo na UI, verificação completa e barata na camada de API.
 
-2. **Camada mais adequada**: testes de UI devem ser rápidos e verificar o
-   fluxo (a busca funciona, retorna resultados). Validação de dado
-   estruturado (categoria de cada produto) é mais barata e confiável na
-   camada de API, onde os dados vêm prontos em JSON, sem custo de
-   navegação. Essa validação mais profunda é feita no teste A03
-   (POST /searchProduct), na camada de API.
 
-Essa divisão segue o princípio da pirâmide de testes: verificações
-superficiais e de fluxo na UI, verificações de dado na camada mais barata
-de validar (API).
+### W05 — Adicionar produto ao carrinho
+
+Os dois cenários deste caso de teste usam o **primeiro produto da listagem**
+(sem busca prévia), mesmo havendo a opção de reaproveitar os steps de busca
+já implementados no W04. Essa escolha é proposital: cada cenário deve
+testar uma responsabilidade isolada. O W05 testa "adicionar ao carrinho",
+não "buscar produto" — se o cenário dependesse da busca funcionar
+corretamente, uma falha na busca faria o W05 falhar por um motivo que não
+tem relação com o que ele deveria validar (acoplamento entre testes).
+Usar o primeiro produto da listagem remove essa dependência.
+
+## Pendências conhecidas (roadmap de revisão)
+
+- [ ] Adicionar seção de observações no README para os demais cenários (W01–W03), não só W04
+- [ ] Renomear a classe `ProductPage` (dentro de `PaginaDeBusca.js`) para manter consistência com a convenção em português adotada nos demais Page Objects
+- [ ] Remover `tests/example.spec.js` (teste de exemplo padrão do Playwright, não utilizado)
+- [ ] Confirmar, ao implementar A03, que a validação de categoria prometida nesta seção foi de fato implementada na API
+

@@ -5,7 +5,7 @@ const common = {
     'support/**/*.js',
   ],
   format: [
-    'progress-bar',
+    'pretty',
     'html:reports/cucumber-report.html',
   ],
   publishQuiet: true,

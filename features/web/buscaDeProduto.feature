@@ -5,6 +5,6 @@ Feature: Busca de produto
 
   @W04-busca @regression
   Scenario: Busca por produto existente
-  Given que o usuário está na página de produtos
-  When ele busca por um produto existente
-  Then os resultados exibidos devem conter o termo buscado
+    Given que o usuário está na página de produtos
+    When ele busca por um produto existente
+    Then os resultados exibidos devem conter o termo buscado
