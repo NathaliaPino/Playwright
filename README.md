@@ -197,6 +197,21 @@ corretamente, uma falha na busca faria o W05 falhar por um motivo que não
 tem relação com o que ele deveria validar (acoplamento entre testes).
 Usar o primeiro produto da listagem remove essa dependência.
 
+### W06 — Fluxo de checkout E2E
+
+O cenário cria um novo usuário a cada execução (via cadastro), em vez de
+usar uma conta fixa pré-existente para fazer login diretamente. Essa
+escolha é proposital: automationexercise.com é um site público de prática,
+usado por muitas pessoas simultaneamente no mundo todo para automação.
+Uma conta fixa embutida no código correria risco real de ser excluída
+(há inclusive um endpoint de exclusão, `DELETE /deleteAccount`, testado
+no A08) ou ter a senha alterada por outro usuário/teste, quebrando o
+cenário de forma imprevisível e fora do nosso controle.
+
+Criar um usuário novo por execução (e-mail único via timestamp) elimina
+essa dependência externa frágil, ao custo de um cadastro extra antes do
+login propriamente dito.
+
 ## Pendências conhecidas (roadmap de revisão)
 
 - [ ] Adicionar seção de observações no README para os demais cenários (W01–W03), não só W04
