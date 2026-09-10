@@ -46,3 +46,25 @@ Then('o produto deve aparecer no carrinho', async function () {
   expect(cartItem.name).toBe(this.addedProduct.name);
   expect(cartItem.price).toBe(this.addedProduct.price);
 });
+
+
+
+/* W07 */
+
+When('acessa o carrinho', async function () {
+  await this.productPage.goToCart();
+  this.cartPage = new PaginaDoCarrinho(this.page);
+});
+
+When('remove o produto do carrinho', async function () {
+  await this.cartPage.removeFirstProduct();
+});
+
+Then('o carrinho deve ficar vazio', async function () {
+  await expect(this.cartPage.emptyCartMessage).toBeVisible({ timeout: 10000 });
+});
+
+Then('o carrinho deve conter {int} produto', async function (expectedCount) {
+  const count = await this.cartPage.getProductCount();
+  expect(count).toBe(expectedCount);
+});

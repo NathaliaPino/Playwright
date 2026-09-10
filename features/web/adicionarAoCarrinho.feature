@@ -17,3 +17,13 @@ Feature: Adicionar produto ao carrinho
         And clica para adicionar o produto ao carrinho
         And uma mensagem de confirmação é exibida
         Then o produto deve aparecer no carrinho
+
+
+    @W07-remover-carrinho @regression
+    Scenario: Remover produto do carrinho
+        Given que o usuário está na página de produtos
+        When ele clica para adicionar um produto ao carrinho
+        And acessa o carrinho
+        Then o carrinho deve conter 1 produto
+        When remove o produto do carrinho
+        Then o carrinho deve ficar vazio

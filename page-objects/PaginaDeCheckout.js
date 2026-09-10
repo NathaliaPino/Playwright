@@ -5,9 +5,9 @@ class PaginaDeCheckout {
     this.placeOrderButton = page.getByText('Place Order');
   }
 
-  async placeOrder() {
-    await this.placeOrderButton.click();
-  }
+    async placeOrder() {
+        await this.placeOrderButton.click({ timeout: 10000 });
+    }
 }
 
 module.exports = { PaginaDeCheckout };
