@@ -1,5 +1,5 @@
 const { LoginPage } = require('../page-objects/PaginaDeLogin');
-const { SignupPage } = require('../page-objects/PáginadeCadastro');
+const { SignupPage } = require('../page-objects/PaginadeCadastro');
 
 async function startSignup(page, user) {
   const loginPage = new LoginPage(page);

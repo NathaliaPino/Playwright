@@ -1,7 +1,7 @@
 const { Given, When, Then } = require('@cucumber/cucumber');
 const { expect } = require('@playwright/test');
 const { LoginPage } = require('../../page-objects/PaginaDeLogin');
-const { SignupPage } = require('../../page-objects/PáginadeCadastro');
+const { SignupPage } = require('../../page-objects/PaginadeCadastro');
 const { HeaderComponent } = require('../../page-objects/Cabecalho');
 const { buildValidUser } = require('../../fixtures/userData');
 const { completeSignup } = require('../../utils/userRegistration');
