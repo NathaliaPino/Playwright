@@ -1,5 +1,5 @@
 function buildValidUser() {
-  const unique = Date.now(); // Isso garante e-mail único a cada execução
+  const unique = Date.now();
 
   return {
     name: 'Teste Usuário',
@@ -19,4 +19,14 @@ function buildValidUser() {
   };
 }
 
-module.exports = { buildValidUser };
+function buildPaymentData() {
+  return {
+    name: 'Teste Cartão',
+    cardNumber: '4111111111111111',
+    cvc: '123',
+    expiryMonth: '12',
+    expiryYear: '2030',
+  };
+}
+
+module.exports = { buildValidUser, buildPaymentData };

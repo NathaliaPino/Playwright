@@ -6,6 +6,7 @@ const { HeaderComponent } = require('../../page-objects/Cabecalho');
 const { buildValidUser } = require('../../fixtures/userData');
 const { completeSignup } = require('../../utils/userRegistration');
 
+
 Given('que o usuário está na página de login', async function () {
   this.loginPage = new LoginPage(this.page);
   await this.loginPage.goto();
