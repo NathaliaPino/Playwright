@@ -9,6 +9,7 @@ class ProductPage {
     this.AddToCartButton = page.locator('.productinfo .add-to-cart');
     this.addedToCartMessage = page.getByText('Added!');
     this.viewCartLink = page.getByRole('link', { name: 'View Cart' });
+    this.categoryHeading = page.locator('.title.text-center');
   }
 
   async goto() {
@@ -48,6 +49,17 @@ class ProductPage {
   }
 
 
+
+  /* W09 */
+
+  async selectCategory(mainCategory, subCategory) {
+  await this.page.getByRole('link', { name: ` ${mainCategory}` }).click();
+  await this.page.getByRole('link', { name: subCategory }).click();
+}
+
+  async getCategoryHeadingText() {
+    return (await this.categoryHeading.textContent()).trim();
+  }
   
 
 

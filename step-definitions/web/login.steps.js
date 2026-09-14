@@ -35,3 +35,10 @@ When('ele faz login com uma senha incorreta', async function () {
 Then('uma mensagem de erro deve ser exibida', async function () {
   await expect(this.loginPage.loginErrorMessage).toBeVisible();
 });
+
+
+/* W10 */
+
+When('ele faz login com email {string} e senha {string}', async function (email, password) {
+  await this.loginPage.login(email, password);
+});

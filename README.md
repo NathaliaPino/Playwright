@@ -212,6 +212,37 @@ Criar um usuário novo por execução (e-mail único via timestamp) elimina
 essa dependência externa frágil, ao custo de um cadastro extra antes do
 login propriamente dito.
 
+
+### A03 — Confirmação da hipótese do W04
+
+A investigação feita no W04 (busca filtra por categoria, não só nome) foi
+confirmada aqui via dado estruturado: o produto "Little Girls Mr. Panda
+Shirt" retorna na busca por "top" porque sua categoria é "Tops & Shirts"
+(contém "top"), mesmo o nome não contendo o termo. O teste A03 valida
+nome OU categoria, refletindo o comportamento real da busca.
+
+
+### Observação geral sobre a API do site
+
+As APIs desse site respondem consistentemente com status HTTP 200,
+independente do resultado da operação (sucesso ou erro) — o resultado
+real fica no campo `responseCode`, dentro do corpo da resposta (ex:
+`responseCode: 404` para "usuário não encontrado", `responseCode: 400`
+para parâmetro ausente, `responseCode: 201` para criação bem-sucedida).
+Confirmado via testes manuais no Postman antes da automação. Por isso,
+os testes validam `response.status()` (sempre 200) separadamente de
+`body.responseCode` (que reflete o resultado semântico real).
+
+
+### A10 — Validação de schema
+
+O schema usado na validação (tests/api/schemas/productSchema.js) foi
+inferido a partir de amostras reais da resposta de `/api/productsList`,
+já que a API não possui documentação formal de schema (OpenAPI/Swagger).
+Isso significa que o schema reflete o formato observado, não uma garantia
+contratual da API — casos extremos não presentes na amostra analisada
+podem não estar cobertos.
+
 ## Pendências conhecidas (roadmap de revisão)
 
 - [ ] Adicionar seção de observações no README para os demais cenários (W01–W03), não só W04

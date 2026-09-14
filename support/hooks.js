@@ -7,8 +7,16 @@ const BASE_URL = 'https://automationexercise.com'; // <- adicione esta linha
 
 let browser;
 
+//BeforeAll(async function () {
+//  browser = await chromium.launch({ headless: false });
+//});
+
+// Rodar o teste mais lentamente:
 BeforeAll(async function () {
-  browser = await chromium.launch({ headless: false });
+  browser = await chromium.launch({
+    headless: false,
+    slowMo: 1000
+  });
 });
 
 Before(async function () {

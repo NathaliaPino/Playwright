@@ -38,13 +38,13 @@ Then('o produto deve aparecer no carrinho', async function () {
   const cartPage = new PaginaDoCarrinho(this.page);
   const cartItem = await cartPage.getFirstProductNameAndPrice();
 
+  expect(cartItem.name).toBe(this.addedProduct.name);
+  expect(cartItem.price).toBe(this.addedProduct.price);
+
   console.log('Comparando produtos:', {
     adicionado: this.addedProduct,
     noCarrinho: cartItem,
   });
-
-  expect(cartItem.name).toBe(this.addedProduct.name);
-  expect(cartItem.price).toBe(this.addedProduct.price);
 });
 
 
