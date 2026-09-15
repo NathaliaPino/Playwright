@@ -2,7 +2,7 @@ const { Given, When, Then } = require('@cucumber/cucumber');
 const { expect } = require('@playwright/test');
 const { ProductPage } = require('../../page-objects/PaginaDeProdutos');
 const { ProductDetailPage } = require('../../page-objects/PaginaDeDetalhesDoProduto');
-const { PaginaDoCarrinho } = require('../../page-objects/PaginaDoCarrinho');
+const { CartPage } = require('../../page-objects/PaginaDoCarrinho');
 
 
 
@@ -35,7 +35,7 @@ Then('uma mensagem de confirmação é exibida', async function () {
 Then('o produto deve aparecer no carrinho', async function () {
   await this.productPage.goToCart();
 
-  const cartPage = new PaginaDoCarrinho(this.page);
+  const cartPage = new CartPage(this.page);
   const cartItem = await cartPage.getFirstProductNameAndPrice();
 
   expect(cartItem.name).toBe(this.addedProduct.name);
@@ -53,7 +53,7 @@ Then('o produto deve aparecer no carrinho', async function () {
 
 When('acessa o carrinho', async function () {
   await this.productPage.goToCart();
-  this.cartPage = new PaginaDoCarrinho(this.page);
+  this.cartPage = new CartPage(this.page);
 });
 
 When('remove o produto do carrinho', async function () {

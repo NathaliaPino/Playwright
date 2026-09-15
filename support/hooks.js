@@ -7,17 +7,26 @@ const BASE_URL = 'https://automationexercise.com'; // <- adicione esta linha
 
 let browser;
 
-//BeforeAll(async function () {
-//  browser = await chromium.launch({ headless: false });
-//});
+
+// Abre o Chrome/Chromium normalmente, com janela visível
+/*BeforeAll(async function () {
+  browser = await chromium.launch({ headless: false });
+});*/
 
 // Rodar o teste mais lentamente:
+/*
 BeforeAll(async function () {
   browser = await chromium.launch({
     headless: false,
     slowMo: 1000
   });
+});*/
+
+
+BeforeAll(async function () {
+  browser = await chromium.launch({ headless: true });
 });
+
 
 Before(async function () {
   this.context = await browser.newContext({ baseURL: BASE_URL });
@@ -27,20 +36,27 @@ Before(async function () {
   // os testes (fonte real de instabilidade neste site, que exibe anúncios
   // de redes como Google Ads).
   await this.context.route('**/*', (route) => {
-    const adDomains = [
-      'doubleclick.net',
-      'googlesyndication.com',
-      'googleadservices.com',
-      'google.com/pagead',
-      'adservice.google.com',
-    ];
-    const url = route.request().url();
-    if (adDomains.some((domain) => url.includes(domain))) {
-      route.abort();
-    } else {
-      route.continue();
-    }
-  });
+  const adDomains = [
+    'doubleclick.net',
+    'googlesyndication.com',
+    'googleadservices.com',
+    'google.com/pagead',
+    'adservice.google.com',
+    'amazon-adsystem.com',
+    'adnxs.com',
+    'criteo.com',
+    'outbrain.com',
+    'taboola.com',
+    'pubmatic.com',
+    'rubiconproject.com',
+  ];
+  const url = route.request().url();
+  if (adDomains.some((domain) => url.includes(domain))) {
+    route.abort();
+  } else {
+    route.continue();
+  }
+});
 
   this.page = await this.context.newPage();
   this.page.on('dialog', (dialog) => dialog.dismiss());

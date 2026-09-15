@@ -2,9 +2,9 @@ const { Given, When, Then } = require('@cucumber/cucumber');
 const { expect } = require('@playwright/test');
 const { LoginPage } = require('../../page-objects/PaginaDeLogin');
 const { ProductPage } = require('../../page-objects/PaginaDeProdutos');
-const { PaginaDoCarrinho } = require('../../page-objects/PaginaDoCarrinho');
-const { PaginaDeCheckout } = require('../../page-objects/PaginaDeCheckout');
-const { PaginaDePagamento } = require('../../page-objects/PaginaDePagamento');
+const { CartPage } = require('../../page-objects/PaginaDoCarrinho');
+const { CheckoutPage } = require('../../page-objects/PaginaDeCheckout');
+const { PaymentPage } = require('../../page-objects/PaginaDePagamento');
 const { buildValidUser, buildPaymentData } = require('../../fixtures/userData');
 const { registerNewUser } = require('../../utils/userRegistration');
 const { HeaderComponent } = require('../../page-objects/Cabecalho');
@@ -31,17 +31,17 @@ Given('ele adicionou um produto ao carrinho', async function () {
 
 When('ele avança para o checkout', async function () {
   await this.productPage.goToCart();
-  const cartPage = new PaginaDoCarrinho(this.page);
+  const cartPage = new CartPage(this.page);
   await cartPage.proceedToCheckout();
 });
 
 When('confirma o pedido', async function () {
-  this.checkoutPage = new PaginaDeCheckout(this.page);
+  this.checkoutPage = new CheckoutPage(this.page);
   await this.checkoutPage.placeOrder();
 });
 
 When('preenche os dados de pagamento', async function () {
-  const paymentPage = new PaginaDePagamento(this.page);
+  const paymentPage = new PaymentPage(this.page);
   const payment = buildPaymentData();
   await paymentPage.fillPaymentDetails(payment);
   this.paymentPage = paymentPage;

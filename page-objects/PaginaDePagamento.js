@@ -1,4 +1,4 @@
-class PaginaDePagamento {
+class PaymentPage {
   constructor(page) {
     this.page = page;
     this.nameOnCardInput = page.locator('input[data-qa="name-on-card"]');
@@ -20,4 +20,4 @@ class PaginaDePagamento {
   }
 }
 
-module.exports = { PaginaDePagamento };
+module.exports = { PaymentPage };

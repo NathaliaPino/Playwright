@@ -1,4 +1,4 @@
-class PaginaDeCheckout {
+class CheckoutPage {
   constructor(page) {
     this.page = page;
     this.commentTextarea = page.locator('textarea[name="message"]');
@@ -10,4 +10,4 @@ class PaginaDeCheckout {
     }
 }
 
-module.exports = { PaginaDeCheckout };
+module.exports = { CheckoutPage };

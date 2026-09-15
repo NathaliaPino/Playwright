@@ -1,72 +1,81 @@
 # Desafio Técnico — Automação de Testes | automationexercise.com
 
 Projeto de automação de testes cobrindo as camadas **Web** e **API** do site
-[automationexercise.com](https://automationexercise.com), desenvolvido como
-desafio técnico para a vaga de Analista de Qualidade.
+[automationexercise.com](https://automationexercise.com).
 
 ## Objetivo
 
 Validar, de forma automatizada, os principais fluxos de cadastro, login,
-busca e compra do site, utilizando BDD (Gherkin) e Page Objects, conforme
-especificado no desafio técnico.
+busca, carrinho e checkout do site, utilizando BDD (Gherkin) e Page Objects
+na camada Web, e validação de contrato/dados na camada de API.
 
 ## Stack
 
-- **Playwright** — controle de navegador e automação de ações na UI
+- **Playwright** — controle de navegador (Web) e requisições HTTP (API)
 - **@cucumber/cucumber** — BDD (Gherkin) para a camada Web
+- **Playwright Test runner** — execução dos testes de API (sem BDD, conforme
+  permitido pelo enunciado do desafio)
+- **Ajv** — validação de JSON Schema (item bônus A10)
 - **JavaScript** (não TypeScript — ver justificativa abaixo)
 
 ### Por que Playwright + Cucumber?
 
 O desafio permitia escolher entre Cypress e Playwright. Optei por Playwright
 por já estar em processo de aprendizado da ferramenta, e por sua API nativa
-de `APIRequestContext`, que permite testar a camada de API reaproveitando a
-mesma stack usada na camada Web, sem depender de bibliotecas externas.
+(`APIRequestContext`, via `request` no Playwright Test), que permite testar
+a camada de API reaproveitando a mesma stack usada na camada Web, sem
+depender de bibliotecas externas de request HTTP.
 
 ### Por que JavaScript, e não TypeScript?
 
 O projeto foi iniciado a partir do template padrão do
-`npm init playwright@latest`, em JavaScript. Como o foco deste desafio,
-para mim, também é aprendizado da ferramenta, optei por manter em JavaScript
-para reduzir a complexidade adicional de tipagem enquanto ainda me familiarizo
-com os conceitos centrais do Playwright e do BDD.
+`npm init playwright@latest`, em JavaScript. Como parte do foco deste
+desafio, para mim, também é aprendizado da ferramenta, optei por manter em
+JavaScript puro, para reduzir complexidade adicional de tipagem enquanto
+me familiarizava com os conceitos centrais do Playwright e do BDD.
 
-### Sobre o idioma dos nomes de arquivo e classes
+### Por que a camada de API não usa Gherkin/BDD
 
-Os cenários em Gherkin (`.feature`) e os **nomes dos Page Objects** estão
-em português, por escolha pessoal ligada ao processo de aprendizado — fico
-mais confortável lendo o código de ponta a ponta no mesmo idioma do domínio
-de negócio. Já os arquivos utilitários (`utils/`, `fixtures/`) e a
-convenção geral de código seguem nomenclatura mais próxima do padrão da
-indústria (inglês), refletindo uma mistura consciente, não uma
-inconsistência acidental.
+O próprio enunciado do desafio permite explicitamente que os testes de API
+sejam escritos diretamente em JS/TS, sem `.feature`. Optei por isso: a
+camada de API já é bem servida pela sintaxe nativa do Playwright Test
+(`test`, `expect`, `request`).
 
 ## Estrutura de pastas
-
 
 features/web/ → cenários Gherkin (.feature) da camada Web
 step-definitions/web/ → implementação dos steps (Given/When/Then)
 page-objects/ → Page Objects (locators + ações de cada página)
 support/ → hooks do Cucumber (ciclo de vida do browser)
-utils/ → funções utilitárias reutilizáveis (ex: registro de usuário)
-fixtures/ → massa de dados de teste
-tests/ → testes de API (reservado — camada ainda não implementada)
-playwright.config.js → configuração do Playwright Test runner (uso futuro: API)
+utils/ → funções utilitárias reutilizáveis (registro de usuário)
+fixtures/ → massa de dados de teste (camada Web)
+tests/api/ → testes de API (Playwright Test runner)
+tests/api/helpers/ → geração de dados de usuário para a API
+tests/api/schemas/ → schemas JSON usados na validação de contrato (A10)
+playwright.config.js → configuração do Playwright Test runner (API)
 cucumber.js → configuração do cucumber-js (camada Web)
 
 
-
-### Arquivos principais
+### Page Objects
 
 | Arquivo | Responsabilidade |
 |---|---|
-| `page-objects/PaginaDeLogin.js` | Ações da tela de login e início de cadastro |
-| `page-objects/PáginadeCadastro.js` | Preenchimento do formulário completo de cadastro |
-| `page-objects/Cabecalho.js` | Componente de cabeçalho (login/logout, usuário autenticado) |
-| `page-objects/PaginaDeBusca.js` | Busca de produtos e leitura dos resultados |
-| `utils/userRegistration.js` | Orquestra o fluxo completo de cadastro (reutilizado por W01 e W02) |
-| `fixtures/userData.js` | Geração de dados de usuário de teste (e-mail único por execução) |
-| `support/hooks.js` | Ciclo de vida do browser (`Before`/`After`), timeout global, captura de screenshot em falha |
+| `PaginaDeLogin.js` | Login e início do fluxo de cadastro |
+| `PaginadeCadastro.js` | Preenchimento do formulário completo de cadastro |
+| `Cabecalho.js` | Cabeçalho (login/logout, usuário autenticado) |
+| `PaginaDeProdutos.js` | Listagem, busca, adicionar ao carrinho, navegação por categoria |
+| `PaginaDeDetalhesDoProduto.js` | Detalhes do produto (categoria, nome, preço, adicionar ao carrinho) |
+| `PaginaDoCarrinho.js` | Conteúdo do carrinho, remover produto, avançar para checkout |
+| `PaginaDeCheckout.js` | Confirmação do pedido |
+| `PaginaDePagamento.js` | Preenchimento de dados de pagamento e confirmação |
+
+### Outros arquivos-chave
+
+| Arquivo | Responsabilidade |
+|---|---|
+| `utils/userRegistration.js` | Orquestra o fluxo de cadastro (reaproveitado por W01, W02 e W06) |
+| `fixtures/userData.js` | Geração de dados de usuário/pagamento de teste (e-mail único por execução) |
+| `support/hooks.js` | Ciclo de vida do browser, bloqueio de domínios de anúncio, screenshot em falha |
 
 ## Instalação
 
@@ -78,22 +87,60 @@ npx playwright install
 ## Execução
 
 ```bash
-# Todos os testes Web (BDD)
-npx cucumber-js
-
-# Por tag
+# Testes Web (BDD)
+npm run test:web
 npx cucumber-js --tags @smoke
 npx cucumber-js --tags @regression
-
-# Um arquivo de feature específico
+npx cucumber-js --tags @W06-checkout
+npx cucumber-js --tags "@W05-pag-produtos or @W05-view-product"
 npx cucumber-js features/web/cadastro.feature
 
-# Um cenário específico, por linha
-npx cucumber-js features/web/login.feature:7
+# Testes de API
+npm run test:api
 ```
 
-Por padrão, os testes rodam em modo headless. Para acompanhar visualmente,
-altere `headless: true` para `headless: false` em `support/hooks.js`.
+### Modo de execução do navegador (Web)
+
+Por padrão, os testes Web rodam em modo **headless** (sem interface
+gráfica), configurado em `support/hooks.js`:
+
+```js
+BeforeAll(async function () {
+  browser = await chromium.launch({ headless: true });
+});
+```
+
+Esse é o modo recomendado para rodar a suíte completa (mais rápido, e
+compatível com ambientes sem interface gráfica, como CI). Para quem quiser
+**ver o navegador abrindo** durante a execução — útil para acompanhar ou
+depurar um cenário específico — o arquivo já traz, comentadas,
+duas outras opções prontas para usar:
+
+```js
+// Abre o navegador com janela visível, na velocidade normal
+/*
+BeforeAll(async function () {
+  browser = await chromium.launch({ headless: false });
+});
+*/
+
+// Abre o navegador com janela visível, e mais devagar (1s entre cada ação) —
+// útil para acompanhar o passo a passo com calma
+/*
+BeforeAll(async function () {
+  browser = await chromium.launch({
+    headless: false,
+    slowMo: 1000,
+  });
+});
+*/
+```
+
+Para usar uma delas, comente o bloco `headless: true` ativo e descomente a
+opção desejada. **Importante:** deixe apenas **um** desses três blocos
+`BeforeAll` ativo por vez — ter mais de um simultaneamente causa erro, já
+que o Cucumber não permite dois hooks `BeforeAll` inicializando a mesma
+variável `browser` em duplicidade.
 
 ## Arquitetura e decisões de design
 
@@ -101,152 +148,169 @@ altere `headless: true` para `headless: false` em `support/hooks.js`.
 
 Toda interação com elementos de UI está encapsulada em Page Objects — os
 locators ficam centralizados no `constructor` de cada classe, nunca
-espalhados nos steps. Os métodos representam ações do usuário (ex:
-`login()`, `searchForProduct()`), não passos técnicos soltos.
+espalhados nos steps. Os métodos representam ações do usuário, não passos
+técnicos soltos. Page Objects não guardam estado de teste (ex: qual foi o
+último termo buscado) — isso fica a cargo do step, via `this` (World do
+Cucumber). Um Page Object só executa ações e devolve dados; quem julga
+resultado (via `expect`) é sempre o step.
 
-Page Objects **não guardam estado de teste** (ex: qual foi o último termo
-buscado) — essa responsabilidade fica com o step (via `this`, no World do
-Cucumber). Um Page Object só sabe fazer ações na tela e devolver o que está
-visível — quem decide o que fazer com essa informação é o step.
+### Ciclo de vida do navegador e resiliência (`support/hooks.js`)
 
-### Ciclo de vida do navegador (`support/hooks.js`)
-
-Cada cenário roda em um `browser context` e uma `page` novos (`Before`),
-garantindo isolamento total entre testes — nenhum cenário depende de estado
-deixado por outro. Em caso de falha, um screenshot é automaticamente
-anexado ao relatório (`After`), sem necessidade de configuração manual por
-cenário.
+- Cada cenário roda em `browser context` e `page` novos, garantindo
+  isolamento total entre testes.
+- Domínios conhecidos de anúncios de terceiros são bloqueados via
+  interceptação de rede, evitando que banners/modais publicitários
+  sobreponham elementos e causem falsos negativos por timeout — instabilidade
+  real observada neste site durante o desenvolvimento.
+- Diálogos nativos do navegador são dispensados automaticamente.
+- Em caso de falha, um screenshot de página inteira é automaticamente
+  anexado ao relatório (`After`), cobrindo o item bônus W12.
 
 ### Reaproveitamento de fluxos (`utils/userRegistration.js`)
 
-O fluxo de cadastro de usuário é usado tanto no teste de cadastro em si
-(W01) quanto como pré-condição do teste de login (W02, que precisa de um
-usuário existente). Para evitar duplicar essa lógica, ela foi extraída em
-funções reutilizáveis (`startSignup`, `completeSignup`, `registerNewUser`),
-usadas por ambos os cenários.
+O cadastro de usuário é usado no teste de cadastro em si (W01) e como
+pré-condição de login (W02) e checkout (W06). Para evitar duplicar essa
+lógica, ela foi extraída em funções reutilizáveis (`startSignup`,
+`completeSignup`, `registerNewUser`).
 
-### Dados de teste únicos (`fixtures/userData.js`)
+### Dados de teste únicos
 
-Como o site não permite resetar o estado entre execuções, o e-mail do
-usuário de teste é gerado com timestamp (`Date.now()`), garantindo que cada
-execução crie um usuário novo, sem colisão com execuções anteriores.
+O site não permite resetar estado entre execuções, então o e-mail de cada
+usuário de teste é gerado com timestamp (`Date.now()`), garantindo que
+cada execução crie um usuário novo, sem colisão com execuções anteriores
+— tanto na camada Web (`fixtures/userData.js`) quanto na API
+(`tests/api/helpers/buildApiUser.js`).
 
 ## Cobertura de testes
 
-| ID | Cenário | Arquivo | Status |
+### Camada Web
+
+| ID | Cenário | Nível | Status |
 |---|---|---|---|
-| W01 | Cadastro de usuário | `features/web/cadastro.feature` | ✅ |
-| W02 | Login — credenciais válidas | `features/web/login.feature` | ✅ |
-| W03 | Login — credenciais inválidas | `features/web/login.feature` | ✅ |
-| W04 | Busca de produto | `features/web/buscaDeProduto.feature` | ✅ |
-| W05–W12 | Demais cenários Web | — | ⏳ Pendente |
-| A01–A10 | Camada de API | — | ⏳ Pendente |
+| W01 | Cadastro de usuário | MUST | ✅ |
+| W02 | Login — credenciais válidas | MUST | ✅ |
+| W03 | Login — credenciais inválidas | MUST | ✅ |
+| W04 | Busca de produto | MUST | ✅ |
+| W05 | Adicionar produto ao carrinho | MUST | ✅ |
+| W06 | Fluxo de checkout E2E | MUST | ✅ |
+| W07 | Remover produto do carrinho | SHOULD | ✅ |
+| W08 | Validação de campo obrigatório | SHOULD | ✅ |
+| W09 | Navegação por categoria | SHOULD | ✅ |
+| W10 | Scenario Outline / Examples | SHOULD | ✅ |
+| W11 | Tags nos cenários | BONUS | ✅ |
+| W12 | Evidência em falha | BONUS | ✅ |
+
+### Camada API
+
+| ID | Endpoint | Nível | Status |
+|---|---|---|---|
+| A01 | GET /productsList | MUST | ✅ |
+| A02 | GET /brandsList | MUST | ✅ |
+| A03 | POST /searchProduct — válido | MUST | ✅ |
+| A04 | POST /searchProduct — sem parâmetro | MUST | ✅ |
+| A05 | POST /createAccount | MUST | ✅ |
+| A06 | POST /verifyLogin — válido | MUST | ✅ |
+| A07 | POST /verifyLogin — inválido | MUST | ✅ |
+| A08 | DELETE /deleteAccount | SHOULD | ✅ |
+| A09 | PUT /updateAccount | SHOULD | ✅ |
+| A10 | Validação de schema | BONUS | ✅ |
 
 ## Observações e decisões técnicas
 
+
 ### W04 — Busca de produto
 
-A busca de produtos do site (`/products?search=`) filtra por **categoria**
-do produto, não pelo texto literal do nome. Isso foi confirmado
-inspecionando manualmente os detalhes de produtos retornados na busca por
-"dress": itens sem a palavra "dress" no nome (ex: "Sleeveless Unicorn Patch
-Gown") também aparecem nos resultados, pois estão categorizados como
-`Kids > Dress`.
+A busca (`/products?search=`) filtra por **categoria** do produto, não
+apenas pelo texto do nome — confirmado inspecionando manualmente produtos
+retornados na busca por "dress" sem essa palavra no nome, mas categorizados
+como `Kids > Dress`. Um dos resultados (uma blusa+short) está categorizado
+como `Dress` sem ser um vestido — aparenta ser erro de cadastro do produto
+no catálogo do site, não falha da busca.
 
-Um dos resultados retornados ("Sleeves Top and Short - Blue & Pink") está
-categorizado como `Kids > Dress`, mas não é um vestido — aparenta ser um
-erro de classificação no cadastro do produto, não uma falha da busca em
-si.
-
-Por esse motivo, uma comparação textual exata entre o termo buscado e o
-nome de cada produto geraria falsos negativos.
-
-**Sobre o custo de validar categoria:** confirmar a categoria de um produto
-exige abrir sua página de detalhes — uma navegação extra por produto
-verificado. Validar **todos** os resultados retornados por uma busca teria
-esse custo multiplicado por N produtos, tornando o teste mais lento e mais
-suscetível a falhas de instabilidade de rede. 
-validar categoria em **todos** os resultados retornados teria o custo de
-performance já descrito (uma navegação extra por produto). Mas validar
-**apenas o primeiro produto** da lista tem um custo bem menor (1 navegação
-extra, não N) e ainda funciona como um sinal rápido de que a busca está
-minimamente correta. Por isso, a validação foi dividida entre as camadas Web e API:
-
+Por isso, a validação foi dividida entre camadas:
 - **Web (W04)**: valida que a busca retorna resultados não-vazios, e faz
-  uma checagem leve — abre apenas o **primeiro** produto retornado e
-  confirma que sua categoria contém o termo buscado, como um sinal rápido
-  de que a busca está minimamente correta, mantendo o custo de navegação
-  baixo (1 acesso extra, não N).
-- **API (A03)**: fará a validação completa e rigorosa — todos os produtos
-  retornados, comparando categoria real via dados estruturados (JSON),
-  sem custo de navegação (a API devolve tudo pronto, sem precisar abrir
-  página por página).
+  uma checagem leve — abre o primeiro produto retornado e confirma que
+  sua categoria contém o termo buscado (custo de navegação controlado: 1
+  acesso extra, não N).
+- **API (A03)**: validação completa e rigorosa — todos os produtos
+  retornados, comparando nome OU categoria via JSON estruturado, sem
+  custo de navegação.
 
 Essa divisão segue o princípio da pirâmide de testes: verificação leve de
-fluxo na UI, verificação completa e barata na camada de API.
-
+fluxo na UI, verificação completa e barata na API.
 
 ### W05 — Adicionar produto ao carrinho
 
-Os dois cenários deste caso de teste usam o **primeiro produto da listagem**
-(sem busca prévia), mesmo havendo a opção de reaproveitar os steps de busca
-já implementados no W04. Essa escolha é proposital: cada cenário deve
-testar uma responsabilidade isolada. O W05 testa "adicionar ao carrinho",
-não "buscar produto" — se o cenário dependesse da busca funcionar
-corretamente, uma falha na busca faria o W05 falhar por um motivo que não
-tem relação com o que ele deveria validar (acoplamento entre testes).
-Usar o primeiro produto da listagem remove essa dependência.
+Os dois cenários usam o primeiro produto da listagem, sem busca prévia,
+mesmo sendo possível reaproveitar os steps do W04. Escolha proposital:
+cada cenário deve testar uma responsabilidade isolada — acoplar W05 à
+busca faria uma falha na busca derrubar o W05 por um motivo alheio ao que
+ele deveria validar.
 
 ### W06 — Fluxo de checkout E2E
 
-O cenário cria um novo usuário a cada execução (via cadastro), em vez de
-usar uma conta fixa pré-existente para fazer login diretamente. Essa
-escolha é proposital: automationexercise.com é um site público de prática,
-usado por muitas pessoas simultaneamente no mundo todo para automação.
-Uma conta fixa embutida no código correria risco real de ser excluída
-(há inclusive um endpoint de exclusão, `DELETE /deleteAccount`, testado
-no A08) ou ter a senha alterada por outro usuário/teste, quebrando o
-cenário de forma imprevisível e fora do nosso controle.
+O cenário cadastra um novo usuário a cada execução (cadastro → logout →
+login), em vez de usar uma conta fixa. automationexercise.com é um site
+público usado por muitas pessoas para prática de automação — uma conta
+fixa correria risco real de ser excluída (existe até um endpoint dedicado,
+testado no A08) ou ter senha alterada por outro teste concorrente. Login é
+feito explicitamente (não só via login automático pós-cadastro), pois o
+critério de aceite menciona "login" como etapa explícita do fluxo.
 
-Criar um usuário novo por execução (e-mail único via timestamp) elimina
-essa dependência externa frágil, ao custo de um cadastro extra antes do
-login propriamente dito.
+### W07 — Remover produto do carrinho
 
+Durante o desenvolvimento, este cenário apresentou falhas intermitentes:
+a mensagem "Cart is empty!" às vezes demorava a aparecer ou nunca chegava
+a aparecer, mesmo após a remoção do produto. Investigando via screenshot
+de falha, identificamos a causa real: banners/overlays publicitários
+cobrindo o botão de remover, impedindo o clique de surtir efeito —
+mesmo com o bloqueio de domínios de anúncio já ativo no `hooks.js`,
+provavelmente por anúncios servidos de redes não cobertas pela lista
+original.
+
+Duas medidas foram tomadas: a lista de domínios bloqueados foi expandida
+para incluir outras redes de anúncio comuns além do Google, e o timeout
+dessa asserção específica foi ampliado para 10s (em vez do padrão global),
+como margem extra de segurança. Após esses ajustes, a suíte completa
+passou de forma consistente em execuções subsequentes. Como o site é
+público e os anúncios servidos variam a cada carregamento, uma
+reincidência pontual não pode ser totalmente descartada — mas o
+comportamento observado até aqui indica que essas medidas mitigaram bem
+o problema.
+
+### W08 — Validação de campo obrigatório
+
+O campo testado possui atributo HTML `required`, então o próprio navegador
+bloqueia o envio via validação nativa, antes da requisição chegar ao
+servidor. Como esse balão de validação não é parte do DOM (não pode ser
+verificado via locator), o teste valida a consequência esperada — a conta
+não é criada — que é o comportamento relevante para o critério de aceite.
 
 ### A03 — Confirmação da hipótese do W04
 
-A investigação feita no W04 (busca filtra por categoria, não só nome) foi
-confirmada aqui via dado estruturado: o produto "Little Girls Mr. Panda
-Shirt" retorna na busca por "top" porque sua categoria é "Tops & Shirts"
-(contém "top"), mesmo o nome não contendo o termo. O teste A03 valida
-nome OU categoria, refletindo o comportamento real da busca.
-
+O produto "Little Girls Mr. Panda Shirt" retorna na busca por "top" porque
+sua categoria é "Tops & Shirts" (contém "top"), mesmo sem a palavra no
+nome — confirmando via dado estruturado a mesma hipótese investigada
+manualmente no W04.
 
 ### Observação geral sobre a API do site
 
-As APIs desse site respondem consistentemente com status HTTP 200,
-independente do resultado da operação (sucesso ou erro) — o resultado
-real fica no campo `responseCode`, dentro do corpo da resposta (ex:
-`responseCode: 404` para "usuário não encontrado", `responseCode: 400`
-para parâmetro ausente, `responseCode: 201` para criação bem-sucedida).
-Confirmado via testes manuais no Postman antes da automação. Por isso,
-os testes validam `response.status()` (sempre 200) separadamente de
-`body.responseCode` (que reflete o resultado semântico real).
+As APIs respondem consistentemente com **status HTTP 200**, independente
+do resultado da operação — o resultado semântico real fica no campo
+`responseCode` do corpo da resposta (ex.: `404` para usuário não
+encontrado, `400` para parâmetro ausente, `201` para criação bem-sucedida).
+Confirmado via testes manuais no Postman antes da automação. Por isso, os
+testes de API validam `response.status()` e `body.responseCode`
+separadamente.
 
+Além disso, os parâmetros dos endpoints POST/PUT/DELETE são enviados como
+`x-www-form-urlencoded` (`form: {...}` no Playwright), não como JSON —
+comportamento também confirmado manualmente antes de escrever os testes.
 
 ### A10 — Validação de schema
 
-O schema usado na validação (tests/api/schemas/productSchema.js) foi
-inferido a partir de amostras reais da resposta de `/api/productsList`,
-já que a API não possui documentação formal de schema (OpenAPI/Swagger).
-Isso significa que o schema reflete o formato observado, não uma garantia
-contratual da API — casos extremos não presentes na amostra analisada
-podem não estar cobertos.
-
-## Pendências conhecidas (roadmap de revisão)
-
-- [ ] Adicionar seção de observações no README para os demais cenários (W01–W03), não só W04
-- [ ] Renomear a classe `ProductPage` (dentro de `PaginaDeBusca.js`) para manter consistência com a convenção em português adotada nos demais Page Objects
-- [ ] Remover `tests/example.spec.js` (teste de exemplo padrão do Playwright, não utilizado)
-- [ ] Confirmar, ao implementar A03, que a validação de categoria prometida nesta seção foi de fato implementada na API
+O schema usado (`tests/api/schemas/productSchema.js`) foi inferido a
+partir de amostras reais da resposta de `/api/productsList`, já que a API
+não possui documentação formal de schema (OpenAPI/Swagger). Reflete o
+formato observado, não uma garantia contratual da API.
 

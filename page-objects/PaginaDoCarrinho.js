@@ -1,4 +1,4 @@
-class PaginaDoCarrinho {
+class CartPage {
   constructor(page) {
     this.page = page;
     this.productRows = page.locator('#cart_info_table tbody tr');
@@ -32,4 +32,4 @@ class PaginaDoCarrinho {
   }
 }
 
-module.exports = { PaginaDoCarrinho };
+module.exports = { CartPage };
