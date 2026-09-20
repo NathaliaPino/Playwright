@@ -7,7 +7,7 @@ Projeto de automação de testes cobrindo as camadas **Web** e **API** do site
 
 Validar, de forma automatizada, os principais fluxos de cadastro, login,
 busca, carrinho e checkout do site, utilizando BDD (Gherkin) e Page Objects
-na camada Web, e validação de contrato/dados na camada de API.
+na camada Web, e testes na camada de API.
 
 ## Stack
 
@@ -28,11 +28,16 @@ depender de bibliotecas externas de request HTTP.
 
 ### Por que JavaScript, e não TypeScript?
 
-O projeto foi iniciado a partir do template padrão do
-`npm init playwright@latest`, em JavaScript. Como parte do foco deste
-desafio, para mim, também é aprendizado da ferramenta, optei por manter em
-JavaScript puro, para reduzir complexidade adicional de tipagem enquanto
-me familiarizava com os conceitos centrais do Playwright e do BDD.
+Optei por JavaScript puro por dois motivos práticos, além do processo de
+aprendizado da ferramenta: (1) o suporte do `cucumber-js` a TypeScript
+exige configuração adicional (`ts-node`/transpiler, ajustes no
+`cucumber.js`), overhead que compete com o prazo do desafio; e (2) num
+projeto de testes automatizados, a garantia de tipos em tempo de
+compilação tem ganho proporcionalmente menor do que teria numa aplicação
+de produção — o comportamento em runtime (o que cada asserção
+efetivamente valida) é o que importa aqui. O projeto foi iniciado a
+partir do template padrão do `npm init playwright@latest`, que já vem em
+JavaScript.
 
 ### Por que a camada de API não usa Gherkin/BDD
 
@@ -142,7 +147,7 @@ opção desejada. **Importante:** deixe apenas **um** desses três blocos
 que o Cucumber não permite dois hooks `BeforeAll` inicializando a mesma
 variável `browser` em duplicidade.
 
-## Arquitetura e decisões de design
+## Arquitetura e decisões 
 
 ### Page Object Model
 
