@@ -30,3 +30,7 @@ function buildPaymentData() {
 }
 
 module.exports = { buildValidUser, buildPaymentData };
+
+
+//obs: Essa é uma funçao que só monta e devolve um objeto com dados,  
+//é puramente sobre criar dados, não sobre executar ações no navegador.

@@ -12,6 +12,12 @@ async function startSignup(page, user) {
 async function completeSignup(signupPage, user) {
   await signupPage.fillAccountInformation(user);
   await signupPage.submit();
+
+  //completeSignup()
+  //é usada diretamente por: W01 (cadastro.steps.js)
+  //é usada indiretamente por, dentro de registerNewUser():
+        // W02 (login.steps.js)
+        // W06 (checkout.steps.js)
 }
 
 async function registerNewUser(page, user) {

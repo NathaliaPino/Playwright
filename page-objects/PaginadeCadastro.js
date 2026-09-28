@@ -1,6 +1,6 @@
 class SignupPage {
   constructor(page) {
-    this.page = page;
+    this.page = page; // guarda a aba do navegador, pra usar nos métodos abaixo
     this.passwordInput = page.locator('#password');
     this.daysSelect = page.locator('#days');
     this.monthsSelect = page.locator('#months');
@@ -20,8 +20,11 @@ class SignupPage {
     this.continueButton = page.locator('a[data-qa="continue-button"]');
   }
 
+
+  // método usado no W01, W02, W06, W08
   async fillAccountInformation(user) {
     if (user.password) await this.passwordInput.fill(user.password);
+    //Se o usuário tiver uma senha, coloque essa senha no campo de senha.
     if (user.dateOfBirth) {
       await this.daysSelect.selectOption(user.dateOfBirth.day);
       await this.monthsSelect.selectOption(user.dateOfBirth.month);
@@ -39,10 +42,12 @@ class SignupPage {
     if (user.mobileNumber) await this.mobileNumberInput.fill(user.mobileNumber);
   }
 
+  // método usado no W01, W02, W06, W08
   async submit() {
     await this.createAccountButton.click();
   }
 
+  // método usado no W01, W02, W06
   async continueToHome() {
     await this.continueButton.click();
   }

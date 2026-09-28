@@ -14,18 +14,18 @@ let browser;
 });*/
 
 // Rodar o teste mais lentamente:
-/*
+
 BeforeAll(async function () {
   browser = await chromium.launch({
     headless: false,
     slowMo: 1000
   });
-});*/
+});
 
-
+/*
 BeforeAll(async function () {
   browser = await chromium.launch({ headless: true });
-});
+});*/
 
 
 Before(async function () {

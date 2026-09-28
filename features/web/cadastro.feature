@@ -3,6 +3,8 @@ Feature: Cadastro de usuário
   Eu quero me cadastrar com dados válidos
   Para ter acesso à minha conta
 
+# W01 - Preencher o formulário com dados válidos e validar que o cadastro é confirmado.
+
   @W01-cadastro @regression
   Scenario: Cadastro de novo usuário com dados válidos
     Given que o usuário está na página de login
