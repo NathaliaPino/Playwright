@@ -236,7 +236,7 @@ Por isso, a validação foi dividida entre camadas:
 - **Web (W04)**: valida que a busca retorna resultados não-vazios, e faz
   uma checagem leve — abre o primeiro produto retornado e confirma que
   sua categoria contém o termo buscado (custo de navegação controlado: 1
-  acesso extra, não N).
+  acesso extra, não N) ou se título tem o termo buscado
 - **API (A03)**: validação completa e rigorosa — todos os produtos
   retornados, comparando nome OU categoria via JSON estruturado, sem
   custo de navegação.

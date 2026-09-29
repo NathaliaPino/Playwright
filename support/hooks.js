@@ -71,6 +71,20 @@ After(async function ({ result }) {
   await this.context?.close();
 });
 
+// After(async function ({ result }) { ... }):
+// roda depois de cada cenário, sem exceção. O Cucumber entrega um objeto result, 
+// que traz o status daquele cenário (passou ou falhou).
+// if (result?.status === Status.FAILED && this.page):
+// só executa a captura se o cenário falhou. Se passou, pula direto para fechar a página
+// e o contexto.
+// this.page.screenshot({ fullPage: true }): 
+// tira um print da tela inteira (não só o que está visível na janela), 
+// no exato momento em que o teste falhou.
+//this.attach(screenshot, 'image/png'):
+// anexa essa imagem ao relatório do Cucumber. 
+// É o attach que faz o print aparecer dentro do reports/cucumber-report.html, 
+// junto do erro.
+
 AfterAll(async function () {
   await browser?.close();
 });
