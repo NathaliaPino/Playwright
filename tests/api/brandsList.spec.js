@@ -1,4 +1,6 @@
 const { test, expect } = require('@playwright/test');
+// Traz test (declara um teste) e expect (faz verificações), direto do Playwright —
+// sem Cucumber, camada de API usa o Playwright Test runner puro.
 
 test.describe('A02 - GET /brandsList', () => {
   test('deve retornar status 200 e a estrutura esperada da lista de marcas', async ({ request }) => {
